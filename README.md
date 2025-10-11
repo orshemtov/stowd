@@ -15,14 +15,14 @@ go build
 
 ```bash
 # replace ~/Projects/dotfiles with the path to your dotfiles repo
-./stowctl --repo ~/Projects/dotfiles
+./stowctl --src ~/Projects/dotfiles
 ```
 
 ### Flags
 
 | Flag      | Type              | Description                |
 |-----------|-------------------|----------------------------|
-| repo      | string            | Path to the dotfiles repo  |
+| src      | string            | Path to the dotfiles repo  |
 | target    | string            | Target directory           |
 | override  | bool              | Override existing files    |
 | verbose   | bool              | Enable verbose output      |

@@ -18,7 +18,7 @@ import (
 )
 
 type config struct {
-	repo     string
+	src      string
 	target   string
 	override bool
 	verbose  bool
@@ -31,7 +31,7 @@ type config struct {
 func main() {
 	var cfg config
 
-	flag.StringVar(&cfg.repo, "repo", ".", "Path to the source repository")
+	flag.StringVar(&cfg.src, "src", ".", "Path to the source directory")
 	flag.StringVar(&cfg.target, "target", "", "Path to the target directory")
 	flag.BoolVar(&cfg.override, "override", true, "Override existing files")
 	flag.BoolVar(&cfg.verbose, "verbose", true, "Enable verbose output")
@@ -55,12 +55,12 @@ func main() {
 	})
 	flag.Parse()
 
-	// Get the absolute path of the repository containing the dotfiles
-	absRepo, err := filepath.Abs(cfg.repo)
+	// Get the absolute path of the source directory containing the dotfiles
+	src, err := filepath.Abs(cfg.src)
 	if err != nil {
-		log.Fatalf("Failed to get absolute path of repo: %v", err)
+		log.Fatalf("Failed to get absolute path of src: %v", err)
 	}
-	cfg.repo = absRepo
+	cfg.src = src
 
 	// Get the path to the destination where we want to symlink the dotfiles
 	if cfg.target == "" {
@@ -77,7 +77,7 @@ func main() {
 
 	// Print configuration
 	fmt.Printf("wstow - Watch and Stow dotfiles\n")
-	fmt.Printf("Repo: %s\n", cfg.repo)
+	fmt.Printf("Src: %s\n", cfg.src)
 	fmt.Printf("Target: %s\n", cfg.target)
 	fmt.Printf("Override: %v\n", cfg.override)
 	fmt.Printf("Verbose: %v\n", cfg.verbose)
@@ -107,11 +107,11 @@ func main() {
 	var mu sync.Mutex
 	added := map[string]bool{}
 
-	// Walk the repo and add watchers for all dirs
+	// Walk the source directory and add watchers for all dirs
 	// Except .git
 	var watchDir func(string) error
 	watchDir = func(dir string) error {
-		rel, _ := filepath.Rel(cfg.repo, dir)
+		rel, _ := filepath.Rel(cfg.src, dir)
 		if rel == ".git" || strings.HasPrefix(rel, ".git"+string(os.PathSeparator)) {
 			return nil
 		}
@@ -144,11 +144,11 @@ func main() {
 		return nil
 	}
 
-	if err := watchDir(absRepo); err != nil {
+	if err := watchDir(src); err != nil {
 		log.Fatalf("Failed to add watchers: %v", err)
 	}
 
-	log.Printf("Watching %s (target: %s)", cfg.repo, cfg.target)
+	log.Printf("Watching %s (target: %s)", cfg.src, cfg.target)
 
 	// Initial stow
 	if err := runStow(cfg); err != nil {
@@ -199,7 +199,7 @@ func main() {
 }
 
 func listPackages(cfg config) ([]string, error) {
-	entries, err := os.ReadDir(cfg.repo)
+	entries, err := os.ReadDir(cfg.src)
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +240,7 @@ func runStow(cfg config) error {
 
 	cmd := exec.Command("stow", args...)
 
-	cmd.Dir = cfg.repo
+	cmd.Dir = cfg.src
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
