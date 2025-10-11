@@ -1,0 +1,31 @@
+# Binaries for the current project
+*.exe
+*.dll
+*.so
+*.dylib
+*.o
+
+# Go module cache and build artifacts
+/pkg/
+/bin/
+
+# Dependency vendor directory (if used)
+/vendor/
+
+# Test cache directory
+/testdata/
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+
+# Operating system generated files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Environment variables
+.env
