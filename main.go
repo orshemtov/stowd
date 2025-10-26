@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -28,10 +29,24 @@ type config struct {
 	exclude  map[string]struct{}
 }
 
+func (cfg config) print() {
+	fmt.Printf("wstow - Watch and Stow dotfiles\n")
+	fmt.Printf("Src: %s\n", cfg.src)
+	fmt.Printf("Target: %s\n", cfg.target)
+	fmt.Printf("Override: %v\n", cfg.override)
+	fmt.Printf("Verbose: %v\n", cfg.verbose)
+	fmt.Printf("Dry Run: %v\n", cfg.dryRun)
+	fmt.Printf("Timeout: %v\n", cfg.timeout)
+	fmt.Printf("Debounce: %v\n", cfg.debounce)
+	for ex := range cfg.exclude {
+		fmt.Printf("Excluding package: %s\n", ex)
+	}
+}
+
 func main() {
 	var cfg config
 
-	flag.StringVar(&cfg.src, "src", ".", "Path to the source directory")
+	flag.StringVar(&cfg.src, "src", "", "Path to the source directory, defaults to $HOME/Projects/dotfiles")
 	flag.StringVar(&cfg.target, "target", "", "Path to the target directory")
 	flag.BoolVar(&cfg.override, "override", true, "Override existing files")
 	flag.BoolVar(&cfg.verbose, "verbose", true, "Enable verbose output")
@@ -55,6 +70,11 @@ func main() {
 	})
 	flag.Parse()
 
+	// If no source dir provided, use default
+	if cfg.src == "" {
+		cfg.src = getDefaultSrcDir()
+	}
+
 	// Get the absolute path of the source directory containing the dotfiles
 	src, err := filepath.Abs(cfg.src)
 	if err != nil {
@@ -76,17 +96,7 @@ func main() {
 	}
 
 	// Print configuration
-	fmt.Printf("wstow - Watch and Stow dotfiles\n")
-	fmt.Printf("Src: %s\n", cfg.src)
-	fmt.Printf("Target: %s\n", cfg.target)
-	fmt.Printf("Override: %v\n", cfg.override)
-	fmt.Printf("Verbose: %v\n", cfg.verbose)
-	fmt.Printf("Dry Run: %v\n", cfg.dryRun)
-	fmt.Printf("Timeout: %v\n", cfg.timeout)
-	fmt.Printf("Debounce: %v\n", cfg.debounce)
-	for ex := range cfg.exclude {
-		fmt.Printf("Excluding package: %s\n", ex)
-	}
+	cfg.print()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -198,6 +208,14 @@ func main() {
 	}
 }
 
+func getDefaultSrcDir() string {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		panic("could not get home directory")
+	}
+	return path.Join(home, "Projects", "dotfiles")
+}
+
 func listPackages(cfg config) ([]string, error) {
 	entries, err := os.ReadDir(cfg.src)
 	if err != nil {
@@ -248,9 +266,16 @@ func runStow(cfg config) error {
 		log.Printf("Dry run: stow %s", strings.Join(args, " "))
 	} else {
 		log.Printf("Running: stow %s", strings.Join(args, " "))
+		err := cmd.Run()
+		if err != nil {
+			log.Printf("stow failed")
+			return err
+		}
 	}
 
-	return cmd.Run()
+	log.Printf("Ran: stow %v", args)
+
+	return nil
 }
 
 func stowArgs(cfg config, packages []string) []string {
