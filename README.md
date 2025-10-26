@@ -82,12 +82,12 @@ make uninstall-user
 ```
 stowd/
 ├─ launchd/
-│  └─ com.orshemtov.stowd.plist     # launchd service definition
+│  └─ com.orshemtov.stowd.plist      # launchd service definition
 ├─ scripts/
 │  ├─ install-user.sh                # install and start user service
 │  └─ uninstall-user.sh              # stop and remove service
 ├─ Makefile                          # build/install helpers
-└─ stowd.go                          # main source
+└─ main.go                           # main source
 ```
 
 ---
