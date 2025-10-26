@@ -1,4 +1,4 @@
-# stowctl
+# stowd
 
 A file watcher that runs `stow` every time a file is created, deleted or renamed.
 
@@ -7,7 +7,7 @@ A file watcher that runs `stow` every time a file is created, deleted or renamed
 Requires `go`
 
 ```bash
-git clone https://github.com/orshemtov/stowctl.git
+git clone https://github.com/orshemtov/stowd.git
 go build
 ```
 
@@ -15,7 +15,7 @@ go build
 
 ```bash
 # replace ~/Projects/dotfiles with the path to your dotfiles repo
-./stowctl --src ~/Projects/dotfiles
+./stowd --src ~/Projects/dotfiles
 ```
 
 ### Flags

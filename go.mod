@@ -1,4 +1,4 @@
-module stowctl
+module stowd
 
 go 1.24.3
 
