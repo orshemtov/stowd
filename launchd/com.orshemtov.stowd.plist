@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.orshemtov.stowd</string>
+
+  <!-- Filled in by install script -->
+  <key>WorkingDirectory</key><string>__ABS_DIR__</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__BIN_PATH__</string>
+    <string>--src</string><string>__DOTFILES_DIR__</string>
+    <string>--target</string><string>__TARGET_DIR__</string>
+    <string>--debounce</string><string>2s</string>
+    <string>--verbose</string>
+  </array>
+
+  <key>RunAtLoad</key><true/>
+
+  <!-- Restart on crash/exit -->
+  <key>KeepAlive</key>
+  <dict><key>SuccessfulExit</key><false/></dict>
+
+  <!-- Minimal PATH under launchd; add your local bin -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:__LOCAL_BIN__</string>
+  </dict>
+
+  <key>StandardOutPath</key><string>__LOG_DIR__/stowd.out.log</string>
+  <key>StandardErrorPath</key><string>__LOG_DIR__/stowd.err.log</string>
+</dict>
+</plist>
