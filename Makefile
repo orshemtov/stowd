@@ -1,5 +1,5 @@
 BIN = $(HOME)/.local/bin/stowd
-DOTFILES_DIR ?= $(HOME)/Projects/dotfiles
+DOTFILES_DIR ?= $(if $(STOWD_DOTFILES_FOLDER_PATH),$(STOWD_DOTFILES_FOLDER_PATH),$(HOME)/.dotfiles)
 TARGET_DIR ?= $(HOME)
 
 build:

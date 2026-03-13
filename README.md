@@ -21,22 +21,67 @@ This will produce a binary called `stowd`.
 ## Usage
 
 ```bash
-# Replace ~/Projects/dotfiles with the path to your dotfiles repo
+# Uses $STOWD_DOTFILES_FOLDER_PATH if set, otherwise ~/.dotfiles
+./stowd
+
+# Override the dotfiles repo path explicitly
 ./stowd --src ~/Projects/dotfiles
+```
+
+Set a custom default dotfiles path with `STOWD_DOTFILES_FOLDER_PATH`, for example in `~/.zshenv`:
+
+```bash
+export STOWD_DOTFILES_FOLDER_PATH="$HOME/Projects/dotfiles"
 ```
 
 ### Flags
 
 | Flag      | Type                 | Description                |
 |------------|----------------------|----------------------------|
-| `--src`      | string             | Path to the dotfiles repo  |
+| `--src`      | string             | Path to the dotfiles repo (defaults to `$STOWD_DOTFILES_FOLDER_PATH` or `~/.dotfiles`) |
 | `--target`   | string             | Target directory           |
 | `--override` | bool               | Override existing files    |
 | `--verbose`  | bool               | Enable verbose output      |
-| `--dryRun`   | bool               | Run without making changes |
+| `--dry-run`  | bool               | Run without making changes |
 | `--timeout`  | time.Duration      | Operation timeout          |
 | `--debounce` | time.Duration      | Debounce interval (e.g. `2s`) |
 | `--exclude`  | map[string]struct{} | Patterns to exclude      |
+
+### Track an existing file or directory
+
+Use `track` to move a real path from `$HOME` into a new Stow package and then restow it:
+
+```bash
+stowd dotfiles track agents ~/.agents
+stowd dotfiles track opencode ~/.config/opencode
+stowd dotfiles track zsh ~/.zshrc
+```
+
+This creates:
+
+- `<dotfiles>/<package>/<path-relative-to-home>` in the repo
+- a stow-managed symlink back at the original path
+
+Rules:
+
+- package name is required
+- tracked path must live under the target directory (defaults to `$HOME`)
+- tracking fails if the package already exists
+- use `--src`, `--target`, or `--dry-run` with `track` as needed
+
+### Untrack a managed package
+
+Use `untrack` to move a path that was previously tracked by `stowd` back out of the dotfiles repo into the target directory:
+
+```bash
+stowd dotfiles untrack agents
+```
+
+Rules:
+
+- untracking requires the package name
+- the package must have been originally created by `stowd dotfiles track`
+- `untrack` restores the tracked path back into the target directory and removes the package from the repo
 
 ---
 
@@ -52,7 +97,7 @@ git clone https://github.com/orshemtov/stowd.git
 cd stowd
 
 # build and install as a user service (runs after login)
-DOTFILES_DIR="$HOME/Projects/dotfiles" TARGET_DIR="$HOME" make install-user
+DOTFILES_DIR="${STOWD_DOTFILES_FOLDER_PATH:-$HOME/.dotfiles}" TARGET_DIR="$HOME" make install-user
 ```
 
 This will:
@@ -109,7 +154,7 @@ stowd/
 2. Run:
 
    ```bash
-   DOTFILES_DIR="$HOME/Projects/dotfiles" TARGET_DIR="$HOME" make install-user
+    DOTFILES_DIR="${STOWD_DOTFILES_FOLDER_PATH:-$HOME/.dotfiles}" TARGET_DIR="$HOME" make install-user
    ```
 
 That’s it — `stowd` will now watch your dotfiles automatically after every login.
