@@ -1,0 +1,23 @@
+{
+  "skill_name": "stowd",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I put a config file at ~/.config/tuicr/config.toml but it's not showing up in my dotfiles repo at ~/Projects/dotfiles. I have stowd running as a launchd service. Why isn't it syncing, and how do I get it into my dotfiles?",
+      "expected_output": "Explains the one-directional watch model (stowd watches the repo, not $HOME), notes --adopt doesn't pick up brand-new home files, and recommends 'stowd dotfiles track tuicr ~/.config/tuicr' (with --dry-run first) or repo-first layout. Demonstrate dry-run.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I want to pull ~/.config/opencode into my dotfiles repo as a stow package. Show me the exact stowd commands to do it, including a dry-run first, and explain what will happen at each step.",
+      "expected_output": "Produces accurate stowd CLI: 'stowd dotfiles track opencode ~/.config/opencode --dry-run' then the real command; describes move into repo, symlink creation, .stowd-state metadata, git commit.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Is my stowd service running right now? Show me how to check its launchd status and read its logs, and tell me what common stowd errors look like in the logs.",
+      "expected_output": "Uses 'launchctl print gui/$(id -u)/com.orshemtov.stowd' and 'tail -f ~/Library/Logs/stowd.out.log ~/Library/Logs/stowd.err.log'; notes GNU Stow missing error and package-name validation failures.",
+      "files": []
+    }
+  ]
+}
